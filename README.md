@@ -6,19 +6,19 @@ RandomFunny is the app nobody asked for but everyone secretly needs. It speaks e
 
 Features that'll make you groan:
 
-  o 183+ hand-picked groaners, puns, and knee-slappers
-  o Customizable joke frequency (1 to 120 minutes - we won't judge)
-  o Random timing mode for surprise chuckles
-  o Works in the background - jokes follow you everywhere
-  o Perfect for CarPlay - comedy on the road!
-  o No internet required - offline hilarity guaranteed
-  o Choose your favorite voice - Daniel (British) is particularly charming
+  - 183+ hand-picked groaners, puns, and knee-slappers
+  - Customizable joke frequency (1 to 120 minutes - we won't judge)
+  - Random timing mode for surprise chuckles
+  - Works in the background - jokes follow you everywhere
+  - Perfect for CarPlay - comedy on the road!
+  - No internet required - offline hilarity guaranteed
+  - Choose your favorite voice - Daniel (British) is particularly charming
 
 Why you need this:
 
-  o Awkward silence at work? BOOM. Joke.
-  o Long commute getting boring? WHAM. Punchline.
-  o Forgot how to smile? BAM. Dad joke to the rescue.
+  - Awkward silence at work? BOOM. Joke.
+  - Long commute getting boring? WHAM. Punchline.
+  - Forgot how to smile? BAM. Dad joke to the rescue.
 
 Warning: May cause unexpected snort-laughing in public places. Your coworkers will think you've finally lost it. Your passengers will question your life choices. Your dog will give you that look.
 
