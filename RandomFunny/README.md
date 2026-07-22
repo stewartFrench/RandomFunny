@@ -26,6 +26,19 @@ Download now and let the randomness begin. Your day is about to get 47% sillier.
 
 Note: App does not actually improve your own joke-telling abilities. That's still on you.
 
+-----------------------------------------------
+## Documentation
+
+See [SoftwareDesignDocument.md](RandomFunny/SoftwareDesignDocument.md) for detailed technical documentation including:
+
+- Architecture overview
+- Component breakdown
+- Key algorithms
+- Data flow diagrams
+- Audio session configuration
+- Background operation strategy
+
+-----------------------------------------------
 ## Privacy Policy
 
 **RandomFunny does not collect, store, or share any personal information or user data.**
@@ -42,16 +55,47 @@ For any support issues, questions, or feedback, please contact:
 **Stewart French**
 Email: stewart.french@gmail.com
 
-## Documentation
+-----------------------------------------------
+## Copyright and Legal Analysis
 
-See [SoftwareDesignDocument.md](RandomFunny/SoftwareDesignDocument.md) for detailed technical documentation including:
-- Architecture overview
-- Component breakdown
-- Key algorithms
-- Data flow diagrams
-- Audio session configuration
-- Background operation strategy
+### Joke Content Analysis
 
+**Content Type:** Classic dad jokes, puns, and one-liners
+
+**Copyright Status:** Public Domain / Not Copyrightable
+
+**Legal Analysis:**
+
+1. **Short Phrases Not Copyrightable**
+
+     - Individual jokes are short phrases
+     - Copyright law doesn't protect brief expressions
+     - Jokes are considered "ideas" not copyrightable "expression"
+     - Titles, names, short phrases, slogans generally not protected
+
+2. **Traditional Public Domain Material**
+
+     - These are widely-circulated classic jokes
+     - No known original authors
+     - Been in public use for decades
+     - Part of common cultural knowledge
+     - Similar to folk tales and traditional stories
+
+3. **Compilation Exception**
+
+     - While individual jokes aren't copyrightable
+     - Collections/compilations can be copyrighted
+     - Our selection and arrangement is unique
+     - We dedicate our compilation to public domain (CC0)
+
+4. **No Third-Party Content**
+
+     - No jokes from copyrighted books/shows/comedians
+     - No branded or trademarked material
+     - No celebrity names or references
+     - All traditional wordplay and puns
+
+-----------------------------------------------
 ## License
 
 This software is released into the **public domain**. Anyone is free to copy, modify, publish, use, compile, sell, or distribute this software, either in source code form or as a compiled binary, for any purpose, commercial or non-commercial, and by any means.
@@ -61,3 +105,6 @@ No copyright is claimed on this work. Use it freely without restriction.
 ## Acknowledgments
 
 Developed with assistance from Claude Sonnet 4.5 by Anthropic.
+
+-----------------------------------------------
+end
