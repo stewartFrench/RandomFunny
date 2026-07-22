@@ -61,11 +61,15 @@ entertainment through text-to-speech technology without requiring user interacti
 
   - Text-to-speech joke delivery with customizable voices
   - Configurable frequency (1-120 minutes)
+  - Random timing mode for unpredictable joke delivery
   - Background and standby operation
   - Smart joke rotation (no repeats until all jokes heard)
   - Persistent state across app launches
   - Portrait-only orientation
-  - 157+ dad jokes and puns
+  - Stop speaking button for immediate interruption
+  - Dynamic timer rescheduling on user interaction
+  - CarPlay compatible with optimized audio mode
+  - 183 unique dad jokes and puns
 
 ---
 
@@ -189,12 +193,34 @@ phone is in their pocket, on a desk, or in standby mode.
   - Default: 5 minutes
   - Live updates when timer is running
   - Visual feedback of current setting
+  - Dynamic timer rescheduling on adjustment
 
 **Technical Details:**
 
   - Timer-based scheduling
   - RunLoop integration for background reliability
-  - No immediate playback on frequency adjustment
+  - Reschedules timer from current moment when frequency changes
+  - Updates nextJokeTime immediately on slider adjustment
+
+### 4.2.1 Random Timing Mode
+
+**Description:** Randomize the interval between jokes for unpredictable delivery.
+
+**Requirements:**
+
+  - Toggle button to enable/disable random timing
+  - Visual feedback (blue background when active)
+  - Jokes delivered at random intervals between 1 minute and slider value
+  - Persists across app launches
+  - Shows "Random timing (1-X minutes)" when enabled
+
+**Technical Details:**
+
+  - `getNextInterval()` returns random value when enabled
+  - Each joke triggers scheduling of next random interval
+  - `scheduleNextRandomJoke()` creates single-shot timer
+  - Timer automatically creates next timer after firing
+  - State saved to UserDefaults ("isRandomTiming" key)
 
 ### 4.3 Voice Selection
 
@@ -323,15 +349,17 @@ RandomFunny/
 @Published var funnies            : [String]
 @Published var isEnabled          : Bool
 @Published var frequencyMinutes   : Double
+@Published var isRandomTiming     : Bool
 @Published var availableVoices    : [AVSpeechSynthesisVoice]
 @Published var selectedVoice      : AVSpeechSynthesisVoice?
 @Published var isSpeaking         : Bool
+@Published var unusedFunnies      : [String]
+@Published var usedFunnies        : [String]
+@Published var nextJokeTime       : Date?
 
 private let synthesizer           : AVSpeechSynthesizer
 private var timer                 : Timer?
 private var audioPlayer           : AVAudioPlayer?
-private var unusedFunnies         : [String]
-private var usedFunnies           : [String]
 ```
 
 **Key Methods:**
@@ -339,11 +367,18 @@ private var usedFunnies           : [String]
   - `loadFunnies()`   - Load jokes from JSON
   - `loadJokeState()`   - Restore state from UserDefaults
   - `saveJokeState()`   - Persist state to UserDefaults
+  - `loadFrequency()`   - Restore frequency setting
+  - `saveFrequency()`   - Persist frequency setting
+  - `loadRandomTimingSetting()`   - Restore random timing preference
+  - `saveRandomTimingSetting()`   - Persist random timing preference
   - `resetJokePool()`   - Reset joke rotation
   - `speakRandomFunny()`   - Select and speak a joke
   - `startTimer()`   - Begin periodic joke playback
   - `stopTimer()`   - End periodic playback
   - `updateFrequency(_:)`   - Adjust timer interval
+  - `rescheduleNextJoke()`   - Recalculate and reset timer from current moment
+  - `getNextInterval()`   - Calculate next interval (random or fixed)
+  - `scheduleNextRandomJoke()`   - Schedule next joke with new random interval
   - `stopSpeaking()`   - Interrupt current speech
   - `setupSilentAudioPlayer()`   - Create background audio player
   - `startSilentAudio()`   - Begin silent audio loop
@@ -358,11 +393,13 @@ private var usedFunnies           : [String]
 
   - Header with app name and joke count
   - Voice picker dropdown
-  - Frequency slider with labels
-  - Start/Stop jokes button
-  - Tell me one now button
-  - Stop speaking button (conditional)
-  - Active status indicator
+  - Frequency slider with labels ("Very often" to "Not often")
+  - Random timing button (toggles blue when active)
+  - Start/Stop jokes button (green/red with icons)
+  - Tell me one now button (blue with speaker icon)
+  - Stop speaking button (overlay, orange, appears during speech)
+  - Active status indicator (green dot when running)
+  - Debug info section (commented out, for development use)
 
 ---
 
@@ -386,7 +423,7 @@ private var usedFunnies           : [String]
 
 **Content Summary:**
 
-  - 157 total jokes
+  - 183 total jokes (unique, no duplicates)
   - Classic dad jokes and puns
   - Public domain content
   - No copyrighted material
@@ -418,22 +455,33 @@ private var usedFunnies           : [String]
 
 ### 6.3 Persistence Strategy
 
-**Storage:** UserDefaults  
+**Storage:** UserDefaults
 **Keys:**
 
   - `usedFunnies`   - Array of spoken jokes
   - `unusedFunnies`   - Array of unspoken jokes
+  - `frequencyMinutes`   - Double value for timer interval
+  - `isRandomTiming`   - Boolean for random timing mode
 
 **Save Points:**
 
-  - After each joke is spoken
-  - On joke pool reset
+  - After each joke is spoken (joke state)
+  - On joke pool reset (joke state)
+  - When frequency slider changes (frequency)
+  - When random button toggled (random timing)
   - Before app termination (automatic via UserDefaults)
 
 **Load Points:**
 
-  - App initialization
-  - First launch detection (empty UserDefaults)
+  - App initialization (all settings)
+  - First launch detection (uses defaults: 5 minutes, random off)
+
+**State Validation:**
+
+  - Validates saved jokes still exist in current JSON
+  - Detects new jokes added and adds to unused pool
+  - Handles joke removal gracefully
+  - Filters out invalid entries
 
 ---
 
@@ -468,16 +516,28 @@ typically don't fire when an app is backgrounded or the device is in standby mod
 
 ### 7.3 Audio Session Configuration
 
-**Category:** `.playback`  
-**Mode:** `.default`  
+**Category:** `.playback`
+**Mode:** `.voicePrompt`
 **Options:** `[.mixWithOthers]`
 
 **Reasoning:**
 
   - `.playback` enables background audio
-  - `.default` mode for standard speech
+  - `.voicePrompt` mode prevents audio breakup in CarPlay
   - `.mixWithOthers` allows other apps' audio to play simultaneously
   - Works even in silent mode
+
+**CarPlay Compatibility:**
+
+Testing showed that `.voicePrompt` mode is essential for CarPlay:
+  - `.default` mode: audio breaks up in CarPlay
+  - `.spokenAudio` mode: audio breaks up in CarPlay
+  - `.voicePrompt` mode: works perfectly in CarPlay
+
+**Trade-off:**
+  - `.voicePrompt` makes volume harder to control in CarPlay
+  - Requires Siri commands to adjust volume
+  - Better audio quality outweighs volume control inconvenience
 
 ### 7.4 Background Modes
 
@@ -664,16 +724,36 @@ All code follows the specifications in `format_rules.md`:
 ### 10.1 Formatting Rules
 
   - Braces on separate lines with matching alignment
-  - Comments after every closing brace
+  - Comments on same line as closing braces (e.g., `} // if`)
   - Function parameters on separate lines with aligned colons
   - 12 dashes before top-level classes/structs
   - 4 dashes before function declarations
   - 2 blank lines before each function
-  - Blank lines before and after comments
+  - Blank line AFTER comments (not before)
   - 2-space indentation (not 4)
   - Comments indented 8 spaces beyond code
   - Colons aligned in object definitions
   - Lines limited to 100 characters
+
+**Comment Placement Examples:**
+
+Good:
+```swift
+let x = 5
+
+            // This is a comment
+
+let y = 10
+```
+
+Bad:
+```swift
+let x = 5
+
+
+            // This is a comment
+let y = 10
+```
 
 ### 10.2 Example
 
@@ -682,22 +762,23 @@ All code follows the specifications in `format_rules.md`:
 class FunnyManager: NSObject, ObservableObject
 {
   @Published var funnies : [String] = []
-  
+
+
+
   // ----
   func speakRandomFunny()
   {
             // Select random joke from pool
+
     let randomIndex = Int.random(in: 0..<unusedFunnies.count)
-    
+
     let utterance = AVSpeechUtterance(string: randomFunny)
     utterance.voice = selectedVoice
     utterance.rate  = 0.52
-    
+
     synthesizer.speak(utterance)
-  }
-  // speakRandomFunny
-}
-// class FunnyManager
+  } // speakRandomFunny
+} // class FunnyManager
 ```
 
 ---
@@ -856,13 +937,20 @@ These things have been tested.
 **Version 1.0 (July 20, 2026)**
 
   - Initial release
-  - 157 jokes
-  - Background operation
-  - Voice selection
-  - Frequency control
-  - State persistence
+  - 183 unique jokes (no duplicates)
+  - Background operation with silent audio technique
+  - Voice selection (default: Daniel en-GB)
+  - Frequency control (1-120 minutes, default: 5)
+  - Random timing mode for unpredictable delivery
+  - State persistence (jokes, frequency, random mode)
   - Portrait-only orientation
   - Stop speaking functionality
+  - Dynamic timer rescheduling on user interaction
+  - CarPlay compatible with .voicePrompt audio mode
+  - Joke rotation system (no repeats until all heard)
+  - "Tell Me One Now" button
+  - Code follows format_rules.md standards
+  - Public domain dedication (CC0 1.0)
 
 ---
 
